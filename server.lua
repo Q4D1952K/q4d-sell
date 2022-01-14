@@ -1,6 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-RegisterServerEvent('qg-bando:server:bando')
-AddEventHandler('qg-bando:server:bando', function(name, giamin, giamax, soluong)
+RegisterServerEvent('qg-bando:server:bando' , function(name, giamin, giamax, soluong)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local giaban = math.random(giamin, giamax)
