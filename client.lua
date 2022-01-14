@@ -2,6 +2,7 @@ QBCore = exports['qb-core']:GetCoreObject()
 PlayerData = {}
 local pedcoords =  Config.Ped
 local soluong = 1
+local NPC
 Citizen.CreateThread(function()
     while true do
         local sleep =0
@@ -9,19 +10,18 @@ Citizen.CreateThread(function()
         local dist = #(plyCoords - vector3(pedcoords.x, pedcoords.y, pedcoords.z))
 		if dist <= 100  then
 			if not DoesEntityExist(NPC) then
-				RequestModel("s_m_y_garbage")
-				while not HasModelLoaded("s_m_y_garbage") do
+				RequestModel("a_m_y_business_03")
+				while not HasModelLoaded("a_m_y_business_03") do
 				    Wait(10)
 				end
 				TriggerEvent('qg-sell:client:NPC')
 				if dist <= 5 then
 					DrawText3D(pedcoords.x, pedcoords.y, pedcoords.z + 1.02, "~y~DOANH NHÂN")
-		    			DrawText3D(pedcoords.x, pedcoords.y, pedcoords.z + 0.9, "Muốn làm cái giao dịch nho nhỏ nào không?")
-				else 
-						sleep = 1500
-			else
-				sleep = 1500
-            else 
+		    		DrawText3D(pedcoords.x, pedcoords.y, pedcoords.z + 0.9, "Muốn làm cái giao dịch nho nhỏ nào không?")
+				else
+					sleep = 1500
+                end
+            else
                 sleep = 1500
             end
 		else
@@ -32,7 +32,7 @@ Citizen.CreateThread(function()
 end)
 RegisterNetEvent('qg-sell:client:NPC', function()
     local hash = `a_m_y_business_03`
-    NPC = CreatePed(5, hash, vector3(pedcoords.x, pedcoords.y, pedcoordss.z - 1), 203.63, false, false)
+    NPC = CreatePed(5, hash, vector3(pedcoords.x, pedcoords.y, pedcoords.z - 1), 203.63, false, false)
     FreezeEntityPosition(NPC, true)
     SetEntityInvincible(NPC, true)
     SetBlockingOfNonTemporaryEvents(NPC, true)
