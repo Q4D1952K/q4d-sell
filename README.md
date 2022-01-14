@@ -1,2 +1,2 @@
-# QG
-Không biết ghi gì
+# qg-sell
+sell everything
