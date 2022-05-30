@@ -1,5 +1,4 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-
 local function DrawText3D(x,y,z, text)
     SetTextScale(0.35, 0.35)
     SetTextFont(4)
@@ -127,11 +126,9 @@ CreateThread(function()
         local Pos = GetEntityCoords(PlayerPed)
         local dist = #(Pos - vector3(Config.Ped.x, Config.Ped.y, Config.Ped.z))
         if dist < 5 then
-            DrawText3D(Config.Ped.x, Config.Ped.y, Config.Ped.z + 1.02, "~y~DOANH NHÂN")
+            sleep = 3
+            DrawText3D(Config.Ped.x, Config.Ped.y, Config.Ped.z + 1.02, "Jeff Bezos")
         end
         Wait(sleep)
     end
 end)
-
-
-
