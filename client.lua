@@ -1,12 +1,7 @@
-QBCore = exports['qb-core']:GetCoreObject()
-PlayerData = {}
-local pedcoords =  Config.Ped
-local soluong = 1
-local NPC
--- functions
+local QBCore = exports['qb-core']:GetCoreObject()
 
-local DrawText3D = function(x, y, z, text)
-	SetTextScale(0.35, 0.35)
+local function DrawText3D(x,y,z, text)
+    SetTextScale(0.35, 0.35)
     SetTextFont(4)
     SetTextProportional(1)
     SetTextColour(255, 255, 255, 215)
@@ -17,86 +12,8 @@ local DrawText3D = function(x, y, z, text)
     DrawText(0.0, 0.0)
     ClearDrawOrigin()
 end
--- thread
-CreateThread(function()
-    while true do
-        local sleep =0
-        local plyCoords = GetEntityCoords(PlayerPedId(), false)
-        local dist = #(plyCoords - vector3(pedcoords.x, pedcoords.y, pedcoords.z))
-		if dist <= 100  then
-			if not DoesEntityExist(NPC) then
-				RequestModel("a_m_y_business_03")
-				while not HasModelLoaded("a_m_y_business_03") do
-				    Wait(10)
-				end
-				TriggerEvent('qg-sell:client:NPC')
-            else
-                sleep = 1500
-            end
-            if dist <= 5 then
-                DrawText3D(pedcoords.x, pedcoords.y, pedcoords.z + 1.02, "~y~DOANH NHÂN")
-                DrawText3D(pedcoords.x, pedcoords.y, pedcoords.z + 0.9, "Muốn làm cái giao dịch nho nhỏ nào không?")
-            else
-                sleep = 1500
-            end
-		else
-		    sleep = 1500
-		end
-		Wait(sleep)
-	end
-end)
-CreateThread(function()
-    while true do
-        local sleep =0
-        local plyCoords = GetEntityCoords(PlayerPedId(), false)
-        local dist = #(plyCoords - vector3(pedcoords.x, pedcoords.y, pedcoords.z))
-            if dist <= 5 then
-                DrawText3D(pedcoords.x, pedcoords.y, pedcoords.z + 1.02, "~y~DOANH NHÂN")
-                DrawText3D(pedcoords.x, pedcoords.y, pedcoords.z + 0.9, "Muốn làm cái giao dịch nho nhỏ nào không?")
-                exports['qb-target']:AddCircleZone("bando", vector3(pedcoords.x, pedcoords.y, pedcoords.z), 2.0, {
-                    name="bando",
-                    debugPoly=false,
-                    useZ=true,
-                    }, {
-                        options = {
-                            {
-                                type = "client",
-                                event = "qg-bando:client:bandomenu",
-                                icon = "fas fa-comment-dollar",
-                                label = "Bán đồ",
-                            },
-                            },
-                        distance = 2.0
-                    })
-            else
-                sleep = 1500
-            end
-        Wait(sleep)
-	end
-end)
-CreateThread(function()
-    local blip1 = AddBlipForCoord(pedcoords.x, pedcoords.y, pedcoords.z)
-    SetBlipSprite(blip1, 58)
-	SetBlipDisplay(blip1, 4)
-	SetBlipScale(blip1, 0.7)
-	SetBlipAsShortRange(blip1, true)
-	SetBlipColour(blip1, 0)
-	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentSubstringPlayerName("Công ty trách nhiệm nhiều thành viên")
-    EndTextCommandSetBlipName(blip1)
-end)
 
---event
-RegisterNetEvent('qg-sell:client:NPC', function()
-    local hash = `a_m_y_business_03`
-    NPC = CreatePed(5, hash, vector3(pedcoords.x, pedcoords.y, pedcoords.z - 1), 203.63, false, false)
-    FreezeEntityPosition(NPC, true)
-    SetEntityInvincible(NPC, true)
-    SetBlockingOfNonTemporaryEvents(NPC, true)
-    SetModelAsNoLongerNeeded(hash)
-    TaskStartScenarioInPlace(NPC,'WORLD_HUMAN_HANG_OUT_STREET')
-end)
-RegisterNetEvent('qg-bando:client:bandomenu' ,function()
+RegisterNetEvent('xt-bando:client:bandomenu' ,function()
     local Doban = {
         {
         header = "BÁN ĐỒ",
@@ -108,7 +25,7 @@ RegisterNetEvent('qg-bando:client:bandomenu' ,function()
             header = QBCore.Shared.Items[v.name].label,
             txt = "Giá thu mua: " ..v.banmin.."$ - "..v.banmax.."$",
             params = {
-            event = "qg-bando:client:bando",
+            event = "xt-bando:client:bando",
             args = {
                 name = v.name,
                 giamin = v.banmin,
@@ -126,7 +43,8 @@ RegisterNetEvent('qg-bando:client:bandomenu' ,function()
     exports['qb-menu']:openMenu(Doban)
 end)
 
-RegisterNetEvent('qg-bando:client:bando' ,function(data)
+
+RegisterNetEvent('xt-bando:client:bando' ,function(data)
     local name = data.name
     local giamin = data.giamin
     local giamax = data.giamax
@@ -142,18 +60,78 @@ RegisterNetEvent('qg-bando:client:bando' ,function(data)
             }
         }
     })
-    if not soluong.charge then return
-    elseif tonumber(soluong['charge']) > 0 then
-        soluong = tonumber(soluong['charge'])
-        QBCore.Functions.TriggerCallback('QBCore:HasItem', function(result)
-            if result then
-                TriggerServerEvent('qg-bando:server:bando', name, giamin, giamax, soluong)
-            else
-                exports['okokNotify']:Alert("HỆ THỐNG", "Bạn không đủ "..QBCore.Shared.Items[name].label, 5000, 'error')
-            end
-        end, name, soluong)
-    else
-        TriggerEvent('qg-bando:client:bandomenu')
+    if soluong then
+        if not soluong.charge then return
+        elseif tonumber(soluong['charge']) > 0 then
+            soluong = tonumber(soluong['charge'])
+            QBCore.Functions.TriggerCallback('QBCore:HasItem', function(result)
+                if result then
+                    TriggerServerEvent('xt-bando:server:bando', name, giamin, giamax, soluong)
+                else
+                    exports['xt-notify']:Alert("THÔNG BÁO", "Bạn không đủ "..QBCore.Shared.Items[name].label, 5000, 'error')
+                end
+            end, name, soluong)
+        else
+            TriggerEvent('xt-bando:client:bandomenu')
+        end
     end
 end)
+
+CreateThread(function()
+    local ped_hash = GetHashKey("a_m_y_business_03")
+	RequestModel(ped_hash)
+	while not HasModelLoaded(ped_hash) do
+		Wait(1)
+	end
+	BossNPC = CreatePed(1, ped_hash, Config.Ped.x, Config.Ped.y, Config.Ped.z - 1, Config.Ped.w , false, true)
+	SetBlockingOfNonTemporaryEvents(BossNPC, true)
+	SetPedDiesWhenInjured(BossNPC, false)
+	SetPedCanPlayAmbientAnims(BossNPC, true)
+    TaskStartScenarioInPlace(BossNPC, "WORLD_HUMAN_HANG_OUT_STREET", 0, false)
+	SetPedCanRagdollFromPlayerImpact(BossNPC, false)
+	SetEntityInvincible(BossNPC, true)
+	FreezeEntityPosition(BossNPC, true)
+
+    local blip1 = AddBlipForCoord(Config.Ped.x, Config.Ped.y, Config.Ped.z)
+    SetBlipSprite(blip1, 58)
+	SetBlipDisplay(blip1, 4)
+	SetBlipScale(blip1, 0.7)
+	SetBlipAsShortRange(blip1, true)
+	SetBlipColour(blip1, 0)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentSubstringPlayerName("Công ty trách nhiệm nhiều thành viên")
+    EndTextCommandSetBlipName(blip1)
+
+    exports['qb-target']:AddCircleZone("bando", vector3(Config.Ped.x, Config.Ped.y, Config.Ped.z), 2.0, {
+        name="bando",
+        debugPoly=false,
+        useZ=true,
+        }, {
+            options = {
+                {
+                    type = "client",
+                    event = "xt-bando:client:bandomenu",
+                    icon = "fas fa-comment-dollar",
+                    label = "Bán đồ",
+                },
+                },
+            distance = 2.0
+        })
+end)
+
+
+CreateThread(function()
+    while true do
+        local sleep = 500
+        local PlayerPed = PlayerPedId()
+        local Pos = GetEntityCoords(PlayerPed)
+        local dist = #(Pos - vector3(Config.Ped.x, Config.Ped.y, Config.Ped.z))
+        if dist < 5 then
+            DrawText3D(Config.Ped.x, Config.Ped.y, Config.Ped.z + 1.02, "~y~DOANH NHÂN")
+        end
+        Wait(sleep)
+    end
+end)
+
+
 
